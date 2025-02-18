@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>LilyMarket</RootNamespace>
+        <AssemblyName>LilyMarket</AssemblyName>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>11</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Emgu.CV" Version="4.9.0.5494" />
+      <PackageReference Include="Emgu.CV.Bitmap" Version="4.9.0.5494" />
+      <PackageReference Include="Emgu.CV.runtime.windows.cuda" Version="4.4.0.4099" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Tesseract" Version="5.2.0" />
+      <PackageReference Include="Tesseract.Drawing" Version="5.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="WindowsBase">
+        <HintPath>C:\Users\Пользователь\.dotnet\shared\Microsoft.NETCore.App\8.0.11\WindowsBase.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="pagesBitMap.png" />
+      <None Remove="pagesBitMap0.png" />
+      <None Remove="preLastPage.png" />
+      <None Remove="priceBitMap.png" />
+      <None Remove="slotBitMap.png" />
+      <None Remove="screen.png" />
+      <None Remove="slotsMap.png" />
+      <None Remove="windowBitMap.png" />
+      <None Remove="checkBox.png" />
+      <None Remove="balanceBitMap.png" />
+    </ItemGroup>
+
+</Project>

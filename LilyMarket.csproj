@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>LilyMarket</RootNamespace>
+        <AssemblyName>LilyMarket</AssemblyName>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>12</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Emgu.CV" Version="4.11.0.5746" />
+      <PackageReference Include="Emgu.CV.Bitmap" Version="4.11.0.5746" />
+      <PackageReference Include="Emgu.CV.runtime.windows" Version="4.11.0.5746" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Tesseract" Version="5.2.0" />
+      <PackageReference Include="Tesseract.Drawing" Version="5.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="WindowsBase">
+        <HintPath>C:\Users\User\.dotnet\shared\Microsoft.NETCore.App\8.0.11\WindowsBase.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="pagesBitMap.png" />
+      <None Remove="pagesBitMap0.png" />
+      <None Remove="preLastPage.png" />
+      <None Remove="priceBitMap.png" />
+      <None Remove="slotBitMap.png" />
+      <None Remove="screen.png" />
+      <None Remove="slotsMap.png" />
+      <None Remove="windowBitMap.png" />
+      <None Remove="checkBox.png" />
+      <None Remove="balanceBitMap.png" />
+    </ItemGroup>
+
+<!--    <ItemGroup>-->
+<!--      <ReferencePathWithRefAssemblies Update="C:\Users\User\.dotnet\packs\Microsoft.NETCore.App.Ref\8.0.11\ref\net8.0\System.Runtime.dll" />-->
+<!--    </ItemGroup>-->
+
+</Project>

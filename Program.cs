@@ -146,6 +146,86 @@ namespace LilyMarket
         [STAThread]
         public static void Main()
         {
+            
+
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => DisposeBitBlt();
+            
+            //InitBitBlt();
+            var currentProcess = Process.GetCurrentProcess();
+            currentProcess.PriorityClass = ProcessPriorityClass.RealTime;
+            _selfWindowHandle = currentProcess.MainWindowHandle;
+            SetWindowPos(_selfWindowHandle, SetWindowPosShowFlags.HWND_TOP, 0, 0, ConsoleWidth, ConsoleHeight,
+                SetWindowPosFlags.HIDEWINDOW);
+
+            StringBuilder.Append(Assembly.GetExecutingAssembly().Location).Length -= 3;
+            StringBuilder.Append("exe");
+            ProcessPath = StringBuilder.ToString();
+            StringBuilder.Clear();
+            
+            Console.Title = GenerateString(16);
+            _screenResolution = GetScreenResolution();
+            ActivityHook.KeyDown += OnKeyDown;
+            ActivityHook.KeyUp += OnKeyUp;
+            ActivityHook.Start(false, true);
+
+            _russianOcr = new(TessdataPath, "rus", EngineMode.LstmOnly);
+            _englishOcr = new(TessdataPath, "eng", EngineMode.LstmOnly);
+            _russianOcr.SetVariable("tessedit_char_whitelist", "0123456789ост");
+            _russianOcr.SetVariable("debug_file", "/dev/null");
+            _russianOcr.SetVariable("applybox_debug", 0);
+            
+            _englishOcr.SetVariable("tessedit_char_whitelist", "0123456789");
+            _englishOcr.SetVariable("debug_file", "/dev/null");
+            _englishOcr.SetVariable("classify_bln_numeric_mode", 1);
+            _englishOcr.SetVariable("tessedit_do_invert", 0);
+
+            for (int i = 0; i < TesseractsCount; i++)
+            {
+                var engine = RusEngines[i] = new(TessdataPath, "rus", EngineMode.LstmOnly);
+                engine.DefaultPageSegMode = PageSegMode.SingleLine;
+                //engine.SetVariable("tessedit_char_whitelist", "0123456789");
+                engine.SetVariable("debug_file", "/dev/null");
+                //engine.SetVariable("classify_bln_numeric_mode", 1);
+                engine.SetVariable("applybox_debug", 0);
+                
+                engine.SetVariable("load_system_dawg", "0");
+                engine.SetVariable("load_freq_dawg", "0");
+                engine.SetVariable("load_punc_dawg", "0");
+                engine.SetVariable("load_number_dawg", "1");
+                engine.SetVariable("load_unambig_dawg", "0");
+                engine.SetVariable("load_bigram_dawg", "0");
+                engine.SetVariable("load_fixed_length_dawgs", "0");
+            }
+
+            for (int i = 0; i < TesseractsCount; i++)
+            {
+                var engine = EngEngines[i] = new(TessdataPath, "eng", EngineMode.LstmOnly);
+                engine.DefaultPageSegMode = PageSegMode.SingleLine;
+                engine.SetVariable("tessedit_char_whitelist", "0123456789");
+                engine.SetVariable("debug_file", "/dev/null");
+                engine.SetVariable("classify_bln_numeric_mode", 1);
+                engine.SetVariable("applybox_debug", 0);
+                engine.SetVariable("tessedit_do_invert", 0);
+                engine.SetVariable("tessedit_create_hocr", "0");
+                engine.SetVariable("tessedit_create_tsv", "0");
+                engine.SetVariable("tessedit_create_pdf", "0");
+                
+                engine.SetVariable("load_system_dawg", "0");
+                engine.SetVariable("load_freq_dawg", "0");
+                engine.SetVariable("load_punc_dawg", "0");
+                engine.SetVariable("load_number_dawg", "1");
+                engine.SetVariable("load_unambig_dawg", "0");
+                engine.SetVariable("load_bigram_dawg", "0");
+                engine.SetVariable("load_fixed_length_dawgs", "0");
+            }
+
+            for (int i = 0; i < CountImagesBuffer.Length; i++)
+            {
+                CountImagesBuffer[i] = new Image<Bgr, byte>(CountSize);
+                PriceImagesBuffer[i] = new Image<Bgr, byte>(PriceSize);
+            }
+            _russianOcr.DefaultPageSegMode = _englishOcr.DefaultPageSegMode = PageSegMode.SingleLine;
+
             // var task = Task.Run(async () =>
             // {
             //     try
@@ -204,16 +284,14 @@ namespace LilyMarket
             //         var buyButtonX = _buyButtonCheckX;
             //         var buyButtonY = Rect.Y + SlotsAreaRect.Y + SlotRect.Height * 5;
             //
-            //         await Click(buyButtonX + _random.Next(-350, 100), buyButtonY + _random.Next(0, SlotRect.Height - 2), Settings.Delays.AfterMoveDelays.Slot, 64);
-            //
+            //         for (int i = 1; i < 8; i++)
+            //         {
+            //             var bitmap = new Bitmap(Environment.CurrentDirectory + $"/Screenshots/{i}.png");
+            //             Console.WriteLine(GetCount1(0, bitmap).Item1);
+            //         }
+            //         
             //         if (_stopped) return false;
             //
-            //         buyButtonY += _scrollIndex switch { 0 => 40, 1 => 31, 2 => 22, 3 => 13, 4 => 3, 5 => 3 };
-            //
-            //         buyButtonY += 3;
-            //         buyButtonY += _random.Next(0, 12); // height: 26
-            //         buyButtonX += _random.Next(0, 105);
-            //         //SetCursorPos(buyButtonX, buyButtonY);
             //     }
             //     catch (Exception e)
             //     {
@@ -225,85 +303,7 @@ namespace LilyMarket
             // });
             // task.Wait();
             // return;
-
-            AppDomain.CurrentDomain.ProcessExit += (_, _) => DisposeBitBlt();
             
-            //InitBitBlt();
-            var currentProcess = Process.GetCurrentProcess();
-            currentProcess.PriorityClass = ProcessPriorityClass.RealTime;
-            _selfWindowHandle = currentProcess.MainWindowHandle;
-            SetWindowPos(_selfWindowHandle, SetWindowPosShowFlags.HWND_TOP, 0, 0, ConsoleWidth, ConsoleHeight,
-                SetWindowPosFlags.HIDEWINDOW);
-
-            StringBuilder.Append(Assembly.GetExecutingAssembly().Location).Length -= 3;
-            StringBuilder.Append("exe");
-            ProcessPath = StringBuilder.ToString();
-            StringBuilder.Clear();
-            
-            Console.Title = GenerateString(16);
-            _screenResolution = GetScreenResolution();
-            ActivityHook.KeyDown += OnKeyDown;
-            ActivityHook.KeyUp += OnKeyUp;
-            ActivityHook.Start(false, true);
-
-            _russianOcr = new(TessdataPath, "rus", EngineMode.LstmOnly);
-            _englishOcr = new(TessdataPath, "eng", EngineMode.LstmOnly);
-            _russianOcr.SetVariable("tessedit_char_whitelist", "0123456789ост");
-            _russianOcr.SetVariable("debug_file", "/dev/null");
-            _russianOcr.SetVariable("applybox_debug", 0);
-            
-            _englishOcr.SetVariable("tessedit_char_whitelist", "0123456789");
-            _englishOcr.SetVariable("debug_file", "/dev/null");
-            _englishOcr.SetVariable("classify_bln_numeric_mode", 1);
-            _englishOcr.SetVariable("tessedit_do_invert", 0);
-
-            for (int i = 0; i < TesseractsCount; i++)
-            {
-                var engine = RusEngines[i] = new(TessdataPath, "rus", EngineMode.LstmOnly);
-                engine.DefaultPageSegMode = PageSegMode.SingleLine;
-                engine.SetVariable("tessedit_char_whitelist", "0123456789");
-                engine.SetVariable("debug_file", "/dev/null");
-                //engine.SetVariable("classify_bln_numeric_mode", 1);
-                engine.SetVariable("applybox_debug", 0);
-                
-                engine.SetVariable("load_system_dawg", "0");
-                engine.SetVariable("load_freq_dawg", "0");
-                engine.SetVariable("load_punc_dawg", "0");
-                engine.SetVariable("load_number_dawg", "1");
-                engine.SetVariable("load_unambig_dawg", "0");
-                engine.SetVariable("load_bigram_dawg", "0");
-                engine.SetVariable("load_fixed_length_dawgs", "0");
-            }
-
-            for (int i = 0; i < TesseractsCount; i++)
-            {
-                var engine = EngEngines[i] = new(TessdataPath, "eng", EngineMode.LstmOnly);
-                engine.DefaultPageSegMode = PageSegMode.SingleLine;
-                engine.SetVariable("tessedit_char_whitelist", "0123456789");
-                engine.SetVariable("debug_file", "/dev/null");
-                engine.SetVariable("classify_bln_numeric_mode", 1);
-                engine.SetVariable("applybox_debug", 0);
-                engine.SetVariable("tessedit_do_invert", 0);
-                engine.SetVariable("tessedit_create_hocr", "0");
-                engine.SetVariable("tessedit_create_tsv", "0");
-                engine.SetVariable("tessedit_create_pdf", "0");
-                
-                engine.SetVariable("load_system_dawg", "0");
-                engine.SetVariable("load_freq_dawg", "0");
-                engine.SetVariable("load_punc_dawg", "0");
-                engine.SetVariable("load_number_dawg", "1");
-                engine.SetVariable("load_unambig_dawg", "0");
-                engine.SetVariable("load_bigram_dawg", "0");
-                engine.SetVariable("load_fixed_length_dawgs", "0");
-            }
-
-            for (int i = 0; i < CountImagesBuffer.Length; i++)
-            {
-                CountImagesBuffer[i] = new Image<Bgr, byte>(CountSize);
-                PriceImagesBuffer[i] = new Image<Bgr, byte>(PriceSize);
-            }
-            _russianOcr.DefaultPageSegMode = _englishOcr.DefaultPageSegMode = PageSegMode.SingleLine;
-
             var runTask = Task.Run(async () =>
             {
                 while (true)
@@ -1183,11 +1183,6 @@ namespace LilyMarket
                 GetCount(profitSlot.SlotIndex, profitSlotScan, print: true, id: id + "_orig");
                 //profitSlot.SlotImage.Save(Environment.CurrentDirectory + $@"/Screenshots/{id}_orig = {profitSlot.Count}.png");
                 
-                // using var slotsMap = CaptureRegion(Rect.X + SlotsAreaRect.X,
-                //     Rect.Y + SlotsAreaRect.Y, SlotsAreaRect.Width,
-                //     SlotsAreaRect.Height);
-                // slotsMap.Save(Environment.CurrentDirectory + $@"/Screenshots/{DateTime.Now.ToFileTime()} bitmap_dubl.png");
-                
                 Stop();
                 return false;
             }
@@ -1263,26 +1258,6 @@ namespace LilyMarket
             
             keybd_event((byte)VirtualKey.Escape, 0, 0, 0);
             keybd_event((byte)VirtualKey.Escape, 0, 2, 0);
-            // await Click(_boughtOkButtonX + _random.Next(0, 166), okButtonY + _random.Next(0, 39), Settings.Delays.AfterMoveDelays.OkConfirm);
-            //
-            // repeats = 0;
-            // while (true)
-            // {
-            //     var okPixelR = CapturePixelRed(_boughtOkButtonX, okButtonY);
-            //     if (okPixelR < 200)
-            //         break;
-            //     repeats++;
-            //     if (_stopped) return false;
-            //     switch (repeats)
-            //     {
-            //         case 400:
-            //             await Click(_boughtOkButtonX + _random.Next(0, 166), okButtonY + _random.Next(0, 39), Settings.Delays.AfterMoveDelays.OkConfirm);
-            //             break;
-            //         case 800:
-            //             return false;
-            //     }
-            //     await Task.Delay(2);
-            // }
 
             // Wait for new slots loaded (for sync)
             while (true)
